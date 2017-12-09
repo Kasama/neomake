@@ -19,26 +19,6 @@ Execute (Setup):
   endfunction
   call add(g:neomake_test_funcs_before, 'NeomakeTestsAssertAutomakeAutocommands')
 
-Execute (neomake#configure#automake_for_buffer re-uses configured makers):
-  Save g:neomake
-  new
-  call neomake#configure#automake_for_buffer({'InsertLeave': {'delay': 0}}, 0, [g:entry_maker])
-  AssertNeomakeMessage 'automake: configured buffer for ft= (entry_maker (options)).', 3
-  AssertNeomakeMessage 'automake: resetting tick because of config changes.', 3
-  doautocmd InsertLeave
-  AssertNeomakeMessage 'entry_maker: getting entries via get_list_entries.', 2
-
-  call neomake#configure#automake_for_buffer({'InsertLeave': {'delay': 0}}, 0, [g:true_maker])
-  AssertNeomakeMessage 'automake: resetting tick because of registration changes.', 3
-  doautocmd InsertLeave
-  AssertNeomakeMessage 'Running makers: true-maker.', 3
-  NeomakeTestsWaitForFinishedJobs
-
-  let len_before = len(g:neomake_test_messages)
-  doautocmd FileType
-  AssertEqual len_before, len(g:neomake_test_messages), 'Nothing happened.'
-  bwipe
-
 Execute (short setup: 'n'):
   Save g:neomake
   call neomake#configure#automake('n')
@@ -461,6 +441,26 @@ Execute (neomake#configure#automake_for_buffer can configure makers (list)):
   AssertNeomakeMessage 'Exe (maker_2) of maker maker_2 is not executable.', 0
   AssertNeomakeMessage 'automake: configured buffer for ft= (maker_1 (options)).', 3
   AssertNeomakeMessage 'automake: registered events: FileChangedShellPost, FileType, BufWinEnter.', 3
+  bwipe
+
+Execute (neomake#configure#automake_for_buffer re-uses configured makers):
+  Save g:neomake
+  new
+  call neomake#configure#automake_for_buffer({'InsertLeave': {'delay': 0}}, 0, [g:entry_maker])
+  AssertNeomakeMessage 'automake: configured buffer for ft= (entry_maker (options)).', 3
+  AssertNeomakeMessage 'automake: resetting tick because of config changes.', 3
+  doautocmd InsertLeave
+  AssertNeomakeMessage 'entry_maker: getting entries via get_list_entries.', 2
+
+  call neomake#configure#automake_for_buffer({'InsertLeave': {'delay': 0}}, 0, [g:true_maker])
+  AssertNeomakeMessage 'automake: resetting tick because of registration changes.', 3
+  doautocmd InsertLeave
+  AssertNeomakeMessage 'Running makers: true-maker.', 3
+  NeomakeTestsWaitForFinishedJobs
+
+  let len_before = len(g:neomake_test_messages)
+  doautocmd FileType
+  AssertEqual len_before, len(g:neomake_test_messages), 'Nothing happened.'
   bwipe
 
 Execute (Automake handles unchanged buffer):
